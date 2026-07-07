@@ -3,7 +3,7 @@
 .txt
 update.py
 __pycache__
-data
 instance
 vintage
 SUBMISSION.md
+vintage.db
