@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Research, Vintage{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:28px; max-width:820px;">
+  <div class="card-header" style="margin-bottom:10px;">
+    <h3 style="margin:0;">Research desk</h3>
+    <button class="pill-link" id="clear-research" style="background:none; border:none; cursor:pointer; font-family:var(--font);">Clear conversation</button>
+  </div>
+
+  <div class="card">
+    <div class="chat-window" id="research-window" style="height:520px;">
+      <div class="empty-state" id="research-empty">
+        Ask something to get a full research note, sourced from live search. Good for
+        sector trends, a specific ticker, or a strategy question. Ask a follow-up any
+        time, it remembers the conversation.
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="research-input" placeholder="Ask something, or a follow-up...">
+      <button class="btn btn-outline" id="mic-btn" title="Speak your question" style="padding:12px 16px;">Mic</button>
+      <button class="btn btn-primary" id="research-send">Ask</button>
+    </div>
+  </div>
+</div>
+
+<div id="highlight-popup" style="display:none; position:absolute; z-index:50;">
+  <button class="btn btn-primary btn-sm" id="ask-about-selection">Ask the desk about this</button>
+</div>
+
+<script src="{{ url_for('static', filename='js/research.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Vintage{% endblock %}
+
+{% block content %}
+<div class="ticker-strip">
+  <div class="ticker-track">
+    <span class="ticker-chip">DANGCEM <span class="ticker-up">+3.1%</span></span>
+    <span class="ticker-chip">MTNN <span class="ticker-down">-1.4%</span></span>
+    <span class="ticker-chip">GTCO <span class="ticker-up">+0.8%</span></span>
+    <span class="ticker-chip">AAPL <span class="ticker-up">+2.2%</span></span>
+    <span class="ticker-chip">TSLA <span class="ticker-down">-0.9%</span></span>
+    <span class="ticker-chip">NVDA <span class="ticker-up">+4.6%</span></span>
+    <span class="ticker-chip">BUACEMENT <span class="ticker-up">+1.2%</span></span>
+    <span class="ticker-chip">SEPLAT <span class="ticker-down">-2.0%</span></span>
+    <span class="ticker-chip">DANGCEM <span class="ticker-up">+3.1%</span></span>
+    <span class="ticker-chip">MTNN <span class="ticker-down">-1.4%</span></span>
+    <span class="ticker-chip">GTCO <span class="ticker-up">+0.8%</span></span>
+    <span class="ticker-chip">AAPL <span class="ticker-up">+2.2%</span></span>
+    <span class="ticker-chip">TSLA <span class="ticker-down">-0.9%</span></span>
+    <span class="ticker-chip">NVDA <span class="ticker-up">+4.6%</span></span>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="hero-eyebrow">Now taking positions</div>
+      <h1>A trading desk that shows its work.</h1>
+      <p class="lede">
+        Buy and sell on paper, ask a question and get a real chart and real research
+        behind the answer, then check the math yourself instead of taking our word
+        for it. Every call stays on record, so asking again next week doesn't start
+        the conversation from zero.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-primary">Get started, free</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline">Log in</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hv-shape hv-shape-1"></div>
+
+      <div class="hv-card hv-card-main">
+        <div class="hv-row">
+          <div>
+            <div class="stat-block">
+              <span class="stat-label">Portfolio</span>
+              <span class="stat-value">$128,430</span>
+            </div>
+          </div>
+          <span class="badge badge-up">+12.4%</span>
+        </div>
+        <div class="hv-bars">
+          <div class="hv-bar" style="height:35%;"></div>
+          <div class="hv-bar" style="height:55%;"></div>
+          <div class="hv-bar" style="height:40%;"></div>
+          <div class="hv-bar" style="height:70%;"></div>
+          <div class="hv-bar" style="height:60%;"></div>
+          <div class="hv-bar" style="height:85%; background: var(--teal);"></div>
+          <div class="hv-bar" style="height:65%;"></div>
+        </div>
+      </div>
+
+      <div class="hv-card hv-card-mini">
+        <div class="card-label">Last call</div>
+        <div style="font-weight:800; font-size:15px; margin:4px 0;">NVDA, long</div>
+        <div style="font-size:13px; color:var(--text-soft);">Checked against 3 prior calls, no conflict</div>
+      </div>
+
+      <div class="hv-card hv-card-badge">
+        <span class="hv-dot"></span>
+        <span style="font-size:13px; font-weight:700;">Verified just now</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-kicker">What's different about it</div>
+    <h2 class="section-title">Four habits most tools skip</h2>
+    <div class="feature-grid" style="margin-top:28px;">
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--blue-tint);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+        <h3>It remembers the call</h3>
+        <p>Every position it's taken on a ticker stays on record. Ask again next week and you'll hear whether it still lines up, not a fresh opinion with no memory of the last one.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--green-tint);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h3>The math gets checked</h3>
+        <p>Returns, ratios, position sizing. None of it comes from a guess. It's written out as code, run for real against real prices, and shown only once it comes back clean.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--amber-tint);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+        </div>
+        <h3>It acts, within reason</h3>
+        <p>Routine research runs on its own. Anything sized above ten percent of your account stops and waits for you to confirm before it goes anywhere.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--surface-alt); border: 1px solid var(--border);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        </div>
+        <h3>Gets sharper with use</h3>
+        <p>When a past call resolves, right or wrong, that outcome feeds back into how carefully the next similar calculation gets checked.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:18px; background: var(--surface);">
+      <div>
+        <h2 style="font-size:22px; margin-bottom:4px;">Open an account and try it on a real ticker.</h2>
+        <p style="color:var(--text-soft); margin:0; font-size:14.5px;">Free to start, no card needed.</p>
+      </div>
+      <a href="{{ url_for('auth.signup') }}" class="btn btn-primary">Create your account</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

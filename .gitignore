@@ -1,0 +1,9 @@
+.env
+.env.example
+.txt
+update.py
+__pycache__
+data
+instance
+vintage
+SUBMISSION.md

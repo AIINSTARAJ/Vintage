@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Feed, Vintage{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:28px; max-width:820px;">
+
+  <div class="card" id="briefing-card" style="margin-bottom:18px;">
+    <div class="card-label" style="margin-bottom:8px;">Today</div>
+    <p id="briefing-text" style="font-size:15px; color:var(--text-soft); margin:0;">Putting this together...</p>
+    <button id="toggle-pipeline" style="display:none; background:none; border:none; color:var(--blue); font-size:12.5px; font-weight:700; cursor:pointer; padding:10px 0 0; font-family:var(--font);">Show how this was put together</button>
+    <div id="pipeline-detail" style="display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:13px; color:var(--text-soft);"></div>
+  </div>
+
+  <div class="card-header" style="margin-bottom:4px;">
+    <h3 style="margin:0;">Across what you follow</h3>
+    <span class="pill-link" style="font-weight:500; color:var(--text-faint);">Select a line to ask about it</span>
+  </div>
+
+  <div class="card" id="article-list">
+    {% if articles %}
+      {% for a in articles %}
+      <div class="article-row-wrap" data-ticker="{{ a.ticker or '' }}" data-idx="{{ loop.index0 }}">
+        <div class="article-card">
+          <div class="row-main">
+            {% if a.ticker %}<span class="badge badge-neutral" style="margin-bottom:6px;">{{ a.ticker }}</span>{% endif %}
+            <div class="article-title">
+              {% if a.link %}<a href="{{ a.link }}" target="_blank" rel="noopener">{{ a.title }}</a>{% else %}{{ a.title }}{% endif %}
+            </div>
+            {% if a.summary %}<div class="article-summary">{{ a.summary }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">Nothing pulled right now, try again shortly.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div id="highlight-popup" style="display:none; position:absolute; z-index:50;">
+  <button class="btn btn-primary btn-sm" id="ask-about-selection">Ask the desk about this</button>
+</div>
+
+<script src="{{ url_for('static', filename='js/feed.js') }}"></script>
+{% endblock %}

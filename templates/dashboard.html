@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% block title %}Dashboard, Vintage{% endblock %}
+{% block content %}
+
+<div class="container" style="padding-top:28px;">
+
+  {% if just_resolved %}
+    <div class="card" style="border-color: var(--amber); margin-bottom:18px;">
+      {% for t in just_resolved %}
+        <p style="margin:4px 0; font-size:14px;">
+          Your {{ t.direction }} call on <strong class="mono">{{ t.ticker }}</strong> from {{ t.created_at.strftime('%b %d') }}
+          came back <strong class="{{ 'text-up' if t.outcome_correct else 'text-down' }}">{{ 'right' if t.outcome_correct else 'wrong' }}</strong>,
+          price moved from {{ t.price_at_call }} to {{ t.price_at_check }}.
+        </p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="grid-3" style="margin-bottom:18px;">
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-label">Total value over time</div>
+      <div class="stat-value" style="font-size:28px; margin:6px 0 12px;">${{ '{:,.2f}'.format(portfolio.total_value) }}</div>
+      {% if value_history|length >= 2 %}
+        <canvas id="value-history-chart" height="70"></canvas>
+      {% else %}
+        <div class="empty-state" style="padding:20px 0;">Buy something to start a real history here, reconstructed from your actual trades and actual prices.</div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="card-label">Cash available</div>
+      <div class="stat-value" style="font-size:24px; margin:6px 0 14px;">${{ '{:,.2f}'.format(portfolio.cash) }}</div>
+      <div class="card-label">Call accuracy</div>
+      <div style="display:flex; align-items:center; gap:12px; margin-top:4px;">
+        <canvas id="hit-rate-donut" width="48" height="48"></canvas>
+        <div>
+          <div class="stat-value" style="font-size:20px;">{{ hit_rate ~ '%' if hit_rate is not none else '--' }}</div>
+          <div style="font-size:11.5px; color:var(--text-soft);">{{ fact_count }} things remembered</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <form action="{{ url_for('stock.stock_search') }}" method="GET" style="display:flex; gap:10px;">
+      <input type="text" id="dashboard-ticker-input" name="ticker" placeholder="Look up a ticker, AAPL, MTNN, DANGCEM" style="flex:1;">
+      <button class="btn btn-primary" type="submit">Open</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-header">
+      <h3>Autonomous trading</h3>
+      <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--text-soft); cursor:pointer;">
+        <input type="checkbox" id="autonomous-toggle" style="width:auto;">
+        Let it trade on its own above the confidence bar
+      </label>
+    </div>
+    <p style="font-size:13px; color:var(--text-soft); margin:0 0 12px;">
+      Every morning at 7:00 UTC, and any time you hit run now, it reviews your
+      holdings and watchlist with real news and price data, commits to buy, sell,
+      or hold, and only trades on its own if confidence clears your threshold below.
+      Everything it decides gets logged here whether or not it acted.
+    </p>
+    <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
+      <label style="font-size:12.5px; color:var(--text-soft); display:flex; align-items:center; gap:6px;">
+        Confidence threshold
+        <input type="number" id="confidence-threshold" value="75" min="50" max="99" style="width:70px; padding:6px 8px;">%
+      </label>
+      <label style="font-size:12.5px; color:var(--text-soft); display:flex; align-items:center; gap:6px;">
+        Max position size
+        <input type="number" id="max-pct" value="3" min="1" max="5" style="width:60px; padding:6px 8px;">%
+      </label>
+      <button class="btn btn-outline btn-sm" id="save-autonomous-settings">Save</button>
+      <button class="btn btn-outline btn-sm" id="run-autonomous-now">Run now</button>
+    </div>
+    <div id="autonomous-alerts">
+      <div class="empty-state">No reviews yet, run it now or wait for tomorrow morning.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-header">
+      <h3>Portfolio health</h3>
+      <button class="btn btn-outline btn-sm" id="run-health-check">Run check</button>
+    </div>
+    <div id="health-result">
+      <div class="empty-state">Runs a real concentration analysis across everything you hold, not per stock. Click to run it.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-header">
+      <h3>Holdings</h3>
+      <span class="pill-link">{{ portfolio.holdings|length }} open</span>
+    </div>
+    {% if portfolio.holdings %}
+      <div class="row-list">
+      {% for h in portfolio.holdings %}
+        <div class="row-item">
+          <div class="avatar avatar-sm">{{ h.ticker[:2] }}</div>
+          <div class="row-main">
+            <div class="row-title">{{ h.ticker }}</div>
+            <div class="row-sub">{{ h.shares }} shares, avg cost {{ h.avg_cost }}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="row-value">${{ '{:,.2f}'.format(h.market_value) }}</div>
+            {% if h.price_stale %}
+              <div style="font-size:12px; color:var(--text-faint);">price unavailable</div>
+            {% else %}
+              <div style="font-size:12.5px; font-weight:700;" class="{{ 'text-up' if h.unrealized_pl >= 0 else 'text-down' }}">
+                {{ '+' if h.unrealized_pl >= 0 else '' }}{{ h.unrealized_pl }} ({{ h.unrealized_pl_pct }}%)
+              </div>
+            {% endif %}
+          </div>
+          <a href="{{ url_for('stock.stock_search', ticker=h.ticker) }}" class="btn btn-outline btn-sm">Manage</a>
+        </div>
+      {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">Nothing open yet. Search a ticker and buy something to see it here.</div>
+    {% endif %}
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <h3>Recent calls</h3>
+        <span class="pill-link">{{ thesis_log|length }} total</span>
+      </div>
+      {% if thesis_log %}
+        <div class="row-list">
+        {% for t in thesis_log %}
+          <div class="row-item">
+            <div class="avatar avatar-sm">{{ t.ticker[:2] }}</div>
+            <div class="row-main">
+              <div class="row-title">{{ t.ticker }} <span style="font-weight:500; color:var(--text-soft);">{{ t.direction }}</span></div>
+              <div class="row-sub">{{ t.reasoning[:70] }}{% if t.reasoning|length > 70 %}...{% endif %}</div>
+            </div>
+            <div>
+              {% if t.outcome_checked %}
+                <span class="badge {{ 'badge-up' if t.outcome_correct else 'badge-down' }}">{{ 'right' if t.outcome_correct else 'wrong' }}</span>
+              {% else %}
+                <span class="badge badge-neutral">pending</span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">Ask about a ticker to start building a record.</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Trade history</h3>
+        <span class="pill-link">{{ recent_trades|length }} total</span>
+      </div>
+      {% if recent_trades %}
+        <div class="row-list">
+        {% for t in recent_trades %}
+          <div class="row-item">
+            <div class="avatar avatar-sm">{{ t.ticker[:2] }}</div>
+            <div class="row-main">
+              <div class="row-title">{{ t.ticker }}</div>
+              <div class="row-sub">{{ t.side }} {{ t.quantity }} @ {{ t.price }}</div>
+            </div>
+            <div class="row-value">{{ t.created_at.strftime('%b %d') }}</div>
+          </div>
+        {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">No trades yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/ticker-autocomplete.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+  attachTickerAutocomplete(document.getElementById("dashboard-ticker-input"));
+
+  loadAutonomousSettings();
+  loadAutonomousAlerts();
+
+  async function loadAutonomousSettings() {
+    const res = await fetch("/api/autonomous/settings");
+    const data = await res.json();
+    document.getElementById("autonomous-toggle").checked = data.enabled;
+    document.getElementById("confidence-threshold").value = data.confidence_threshold;
+    document.getElementById("max-pct").value = data.max_pct;
+  }
+
+  document.getElementById("save-autonomous-settings").addEventListener("click", async () => {
+    await fetch("/api/autonomous/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        enabled: document.getElementById("autonomous-toggle").checked,
+        confidence_threshold: parseFloat(document.getElementById("confidence-threshold").value),
+        max_pct: parseFloat(document.getElementById("max-pct").value),
+      }),
+    });
+  });
+
+  document.getElementById("run-autonomous-now").addEventListener("click", async () => {
+    const box = document.getElementById("autonomous-alerts");
+    box.innerHTML = `<div class="empty-state">Reviewing watchlist against live data and news...</div>`;
+    try {
+      const res = await fetch("/api/autonomous/run-now", { method: "POST" });
+      const data = await res.json();
+      if (data.error) { box.innerHTML = `<div class="empty-state">${data.error}</div>`; return; }
+      renderAlerts(data.alerts);
+    } catch (err) {
+      box.innerHTML = `<div class="empty-state">Something broke running the review.</div>`;
+    }
+  });
+
+  async function loadAutonomousAlerts() {
+    const res = await fetch("/api/autonomous/alerts");
+    const data = await res.json();
+    if (data.alerts && data.alerts.length) renderAlerts(data.alerts);
+  }
+
+  function renderAlerts(alerts) {
+    const box = document.getElementById("autonomous-alerts");
+    if (!alerts.length) {
+      box.innerHTML = `<div class="empty-state">No reviews yet, run it now or wait for tomorrow morning.</div>`;
+      return;
+    }
+    box.innerHTML = alerts.map(a => {
+      const badgeClass = a.decision === "buy" ? "badge-up" : a.decision === "sell" ? "badge-down" : "badge-neutral";
+      const execNote = a.executed ? `<span class="badge badge-up" style="margin-left:6px;">traded</span>` : "";
+      return `
+        <div class="row-item">
+          <div class="avatar avatar-sm">${a.ticker.slice(0,2)}</div>
+          <div class="row-main">
+            <div class="row-title">${a.ticker} <span class="badge ${badgeClass}">${a.decision}</span>${execNote}</div>
+            <div class="row-sub">${a.reasoning}</div>
+          </div>
+          <div class="row-value">${a.confidence}%</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  document.getElementById("run-health-check").addEventListener("click", async () => {
+    const box = document.getElementById("health-result");
+    box.innerHTML = `<div class="empty-state">Computing concentration and reading into it...</div>`;
+    try {
+      const res = await fetch("/api/portfolio/health");
+      const data = await res.json();
+      if (data.error) {
+        box.innerHTML = `<div class="empty-state">${data.error}</div>`;
+        return;
+      }
+      if (!data.metrics) {
+        box.innerHTML = `<div class="empty-state">${data.text}</div>`;
+        return;
+      }
+      box.innerHTML = `
+        <div class="grid-3" style="margin-bottom:14px;">
+          <div class="stat-block"><span class="stat-label">Concentration</span><span class="stat-value" style="font-size:20px;">${data.metrics.hhi_label}</span></div>
+          <div class="stat-block"><span class="stat-label">Largest position</span><span class="stat-value" style="font-size:20px;">${data.metrics.largest_position_pct}%</span></div>
+          <div class="stat-block"><span class="stat-label">Cash idle</span><span class="stat-value" style="font-size:20px;">${data.metrics.cash_pct}%</span></div>
+        </div>
+        <p style="font-size:14.5px; line-height:1.6; margin:0;">${data.text}</p>
+      `;
+    } catch (err) {
+      box.innerHTML = `<div class="empty-state">Something broke running the check.</div>`;
+    }
+  });
+  const hitRate = {{ hit_rate if hit_rate is not none else 0 }};
+  new Chart(document.getElementById('hit-rate-donut'), {
+    type: 'doughnut',
+    data: { datasets: [{ data: [hitRate, 100 - hitRate], backgroundColor: ['#16A34A', '#EDEFF4'], borderWidth: 0 }] },
+    options: { cutout: '68%', plugins: { legend: { display: false }, tooltip: { enabled: false } } },
+  });
+
+  const valueHistory = {{ value_history | tojson }};
+  const historyCanvas = document.getElementById('value-history-chart');
+  if (historyCanvas && valueHistory.length >= 2) {
+    new Chart(historyCanvas, {
+      type: 'line',
+      data: {
+        labels: valueHistory.map(p => p.date),
+        datasets: [{
+          data: valueHistory.map(p => p.total_value),
+          borderColor: '#2F6FED', backgroundColor: 'rgba(47,111,237,0.08)',
+          borderWidth: 2, pointRadius: 0, fill: true, tension: 0.2,
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { x: { display: false }, y: { display: false } },
+      },
+    });
+  }
+</script>
+{% endblock %}

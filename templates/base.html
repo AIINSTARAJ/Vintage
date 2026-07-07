@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Vintage{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="page-wrap">
+  <div class="topbar">
+    <div class="container">
+      <a href="{{ url_for('main.landing') }}" style="text-decoration:none;">
+        <div class="brand">
+          <span class="brand-mark">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+              <line x1="6" y1="3" x2="6" y2="9" stroke="#12141C" stroke-width="1.6"/>
+              <rect x="3.5" y="9" width="5" height="9" rx="1" fill="#2F6FED"/>
+              <line x1="6" y1="18" x2="6" y2="23" stroke="#12141C" stroke-width="1.6"/>
+              <line x1="18" y1="2" x2="18" y2="7" stroke="#12141C" stroke-width="1.6"/>
+              <rect x="15.5" y="7" width="5" height="13" rx="1" fill="#16A34A"/>
+              <line x1="18" y1="20" x2="18" y2="24" stroke="#12141C" stroke-width="1.6"/>
+            </svg>
+          </span>
+          Vintage
+        </div>
+      </a>
+      <div class="nav-links">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('main.dashboard') }}" class="nav-item">Dashboard</a>
+          <a href="{{ url_for('feed.feed_page') }}" class="nav-item">Feed</a>
+          <a href="{{ url_for('stock.stock_search') }}" class="nav-item">Search</a>
+          <a href="{{ url_for('research.research_page') }}" class="nav-item">Research</a>
+          <span class="balance-chip">${{ '{:,.0f}'.format(current_user.paper_balance) }}</span>
+          <a href="{{ url_for('auth.logout') }}" class="nav-item">Log out</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="nav-item">Log in</a>
+          <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign up</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="container" style="padding-top:18px;">
+        {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+  </div>
+
+  <footer>
+    <div class="container footer-row">
+      <div class="brand" style="font-size:16px;">
+        <span class="brand-mark" style="width:20px;height:20px;">
+          <svg width="20" height="20" viewBox="0 0 26 26" fill="none">
+            <line x1="6" y1="3" x2="6" y2="9" stroke="#12141C" stroke-width="1.6"/>
+            <rect x="3.5" y="9" width="5" height="9" rx="1" fill="#2F6FED"/>
+            <line x1="6" y1="18" x2="6" y2="23" stroke="#12141C" stroke-width="1.6"/>
+            <line x1="18" y1="2" x2="18" y2="7" stroke="#12141C" stroke-width="1.6"/>
+            <rect x="15.5" y="7" width="5" height="13" rx="1" fill="#16A34A"/>
+            <line x1="18" y1="20" x2="18" y2="24" stroke="#12141C" stroke-width="1.6"/>
+          </svg>
+        </span>
+        Vintage
+      </div>
+      <div class="footer-links">
+        <a href="{{ url_for('stock.stock_search') }}">Search</a>
+        <a href="{{ url_for('research.research_page') }}">Research</a>
+        <a href="{{ url_for('auth.signup') }}">Get started</a>
+      </div>
+      <div class="footer-note">Positions are simulated. Not investment advice.</div>
+    </div>
+  </footer>
+</body>
+</html>

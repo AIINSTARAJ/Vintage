@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Set up your account, Vintage{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="card form-card" style="max-width:540px;">
+    <div class="hero-eyebrow">Before you start</div>
+    <h2>A few things worth knowing about you</h2>
+    <p style="color:var(--text-soft); font-size:14px;">
+      This shapes every answer from here on, not just onboarding.
+    </p>
+    <form method="POST">
+      <label for="username">Display name</label>
+      <input type="text" id="username" name="username" value="{{ default_username }}" required>
+
+      <label for="risk_appetite">Risk appetite</label>
+      <select id="risk_appetite" name="risk_appetite">
+        <option value="low">Low, capital preservation first</option>
+        <option value="medium" selected>Medium, balanced</option>
+        <option value="high">High, comfortable with volatility</option>
+      </select>
+
+      <label for="horizon">Time horizon</label>
+      <select id="horizon" name="horizon">
+        <option value="short">Short-term, weeks to months</option>
+        <option value="long">Long-term, years</option>
+        <option value="both" selected>Depends on the position</option>
+      </select>
+
+      <label for="experience_level">Experience</label>
+      <select id="experience_level" name="experience_level">
+        <option value="new">New to investing</option>
+        <option value="some" selected>Some experience</option>
+        <option value="experienced">Experienced</option>
+      </select>
+
+      <label>Sectors you care about</label>
+      <div class="checkbox-grid">
+        {% for s in sectors %}
+        <label class="checkbox-pill">
+          <input type="checkbox" name="sectors" value="{{ s }}"> {{ s }}
+        </label>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:24px;">Enter the dashboard</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

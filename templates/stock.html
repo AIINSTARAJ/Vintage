@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ ticker or 'Search' }}, Vintage{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:28px;">
+
+  <div class="card" style="margin-bottom:18px;">
+    <form id="ticker-form" style="display:flex; gap:10px;">
+      <input type="text" id="ticker-input" placeholder="Ticker, AAPL, TSLA, MTNN" value="{{ ticker }}" required>
+      <button class="btn btn-primary" type="submit">Load</button>
+    </form>
+  </div>
+
+  <div id="stock-empty" class="card" style="text-align:center; padding:60px 24px;">
+    <div style="font-size:15px; color:var(--text-soft); margin-bottom:4px;">Nothing loaded yet</div>
+    <div style="font-size:20px; font-weight:700; margin-bottom:6px;">Search a ticker to pull up its chart and start asking questions.</div>
+    <div style="font-size:13.5px; color:var(--text-faint);">Try AAPL, TSLA, NVDA, MTNN, or DANGCEM.</div>
+  </div>
+
+  <div id="stock-panel" style="display:none;">
+    <div class="grid-2" style="margin-bottom:18px;">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 id="panel-ticker" style="margin:0; font-size:20px;"></h2>
+            <div id="panel-price" class="mono" style="font-size:22px; margin-top:4px;"></div>
+          </div>
+          <div class="tf-row" id="tf-row">
+            <button class="tf-btn" data-period="1d" data-interval="5m">1D</button>
+            <button class="tf-btn" data-period="5d" data-interval="15m">1W</button>
+            <button class="tf-btn" data-period="1mo" data-interval="1d">1M</button>
+            <button class="tf-btn active" data-period="6mo" data-interval="1d">6M</button>
+            <button class="tf-btn" data-period="1y" data-interval="1d">1Y</button>
+            <button class="tf-btn" data-period="5y" data-interval="1wk">5Y</button>
+          </div>
+        </div>
+        <div id="price-chart" style="height:340px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-label" style="margin-bottom:10px;">Trade</div>
+        <div id="holding-summary" style="margin-bottom:12px;"></div>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <input type="number" id="manual-amount" placeholder="Amount in $" min="1" style="flex:1; padding:14px; font-size:16px; font-weight:600;">
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-buy" style="flex:1;" id="manual-buy">Buy</button>
+          <button class="btn btn-sell" style="flex:1;" id="manual-sell">Sell</button>
+        </div>
+        <div id="trade-panel" style="margin-top:14px;">
+          <div class="empty-state">Ask a question below and take a view for an AI-sized position, or trade manually above.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label" style="margin-bottom:10px;">Ask the desk</div>
+      <div class="chat-window" id="chat-window"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Is this a good entry given the last 6 months?">
+        <button class="btn btn-primary" id="chat-send">Ask</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/ticker-autocomplete.js') }}"></script>
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="{{ url_for('static', filename='js/stock.js') }}"></script>
+<script>
+  attachTickerAutocomplete(document.getElementById("ticker-input"), (symbol) => loadTicker(symbol));
+  {% if ticker %}
+    window.addEventListener('DOMContentLoaded', () => loadTicker("{{ ticker }}"));
+  {% endif %}
+</script>
+{% endblock %}
